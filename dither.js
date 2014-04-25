@@ -19,6 +19,8 @@
 			this.style.imageRendering = "-o-crisp-edges";
 			canvas.style.imageRendering = "-webkit-optimize-contrast";
 			this.style.imageRendering = "-webkit-optimize-contrast";
+			canvas.style.imageRendering = "pixelated";
+			this.style.imageRendering = "pixelated";
 			canvas.style.msInterpolationMode = "nearest-neighbor";
 			this.style.msInterpolationMode = "nearest-neighbor";
 			ctx.drawImage(this, 0, 0, width, height);
@@ -26,16 +28,16 @@
 			var pixel  = imageData.data;
 			for (var y = 0; y < height; ++y) {
 				var ywidth = y * width;
-				var yAnd7 = y & 7;
+				var yAnd7Left3 = (y & 7) << 3;
 				for (var x = 0; x < width; ++x) {
 					var index = (ywidth + x) * 4;
-					var map_value = threshold_map[(x & 7) + (yAnd7 << 3)];
+					var map_value = threshold_map[(x & 7) + yAnd7Left3];
 					var map_valueXthreshold = map_value * threshold;
-					pixel[index] = (pixel[index] + map_valueXthreshold) >> 3 << 3;
+					pixel[index] = (pixel[index] + map_valueXthreshold) & 0xfffffffc;
 					++index;
-					pixel[index] = (pixel[index] + map_valueXthreshold) >> 3 << 3;
+					pixel[index] = (pixel[index] + map_valueXthreshold) & 0xfffffffc;
 					++index;
-					pixel[index] = (pixel[index] + map_valueXthreshold) >> 3 << 3;
+					pixel[index] = (pixel[index] + map_valueXthreshold) & 0xfffffffc;
 				}
 			}
 			ctx.putImageData(imageData, 0, 0);
@@ -43,4 +45,3 @@
 		});
 	};
 })(jQuery);
-
